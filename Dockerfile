@@ -77,7 +77,7 @@ RUN bash -lc 'set -euxo pipefail; \
     rm -rf "$GNUPGHOME" /tmp/rvm.tar.gz /tmp/rvm-${RVM_VERSION}; \
     usermod -aG rvm "$USERNAME"; \
     printf "%s" $'"'"'if [ "${GEM_HOME:-}" = "/usr/local/bundle" ]; then\n  case ":${PATH:-}:" in\n    *:/usr/local/bundle/bin:*) ;;\n    *) export PATH="${PATH:+$PATH:}/usr/local/bundle/bin" ;;\n  esac\nfi\n'"'"' > /etc/profile.d/zz-ruby-bundle-path.sh; \
-    printf "%s" $'\nif [[ -s "/etc/profile.d/rvm.sh" ]]; then\n  source "/etc/profile.d/rvm.sh"\nfi\n\nif [[ "${GEM_HOME:-}" == "/usr/local/bundle" ]]; then\n  case ":${PATH:-}:" in\n    *:/usr/local/bundle/bin:*) ;;\n    *) export PATH="${PATH:+$PATH:}/usr/local/bundle/bin" ;;\n  esac\nfi\n' >> /etc/bash.bashrc
+    printf "%s" $'\nif [[ -s "/etc/profile.d/rvm.sh" ]]; then\n  source "/etc/profile.d/rvm.sh"\nfi\n\nif [[ -s "/etc/profile.d/zz-ruby-bundle-path.sh" ]]; then\n  source "/etc/profile.d/zz-ruby-bundle-path.sh"\nfi\n' >> /etc/bash.bashrc
 
 RUN bash -lc "rvm --version"
 
