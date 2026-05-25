@@ -30,5 +30,9 @@ Note: the upstream `ruby` image sets `GEM_HOME=/usr/local/bundle`. If you hit RV
 
 ```bash
 unset GEM_HOME GEM_PATH
-source /etc/profile.d/rvm.sh
+if [ -s /etc/profile.d/rvm.sh ]; then
+  source /etc/profile.d/rvm.sh
+elif [ -s /usr/local/rvm/scripts/rvm ]; then
+  source /usr/local/rvm/scripts/rvm
+fi
 ```
