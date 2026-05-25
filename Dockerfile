@@ -66,7 +66,7 @@ ENV RVM_PATH=/usr/local/rvm \
 ARG RVM_VERSION=1.29.12
 ARG RVM_TARBALL_SHA256=856feaebb88ff84dbf916016ada01edb0e4eddd1a3038164ebc69434928cb554
 
-RUN bash <<'EOF'
+RUN bash <<EOF
 set -euxo pipefail
 getent group rvm >/dev/null || groupadd -r rvm
 curl -fsSL -o /tmp/rvm.tar.gz "https://github.com/rvm/rvm/archive/refs/tags/${RVM_VERSION}.tar.gz"
