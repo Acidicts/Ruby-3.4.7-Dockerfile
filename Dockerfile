@@ -21,6 +21,7 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 # Install standard development utilities included in Microsoft Devcontainers
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
     curl \
     git \
     openssh-client \
@@ -29,8 +30,24 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     procps \
     gnupg2 \
     build-essential \
+    autoconf \
+    bison \
+    gawk \
     libssl-dev \
     libreadline-dev \
+    libyaml-dev \
+    libgdbm-dev \
+    libncurses5-dev \
+    libffi-dev \
+    libgmp-dev \
+    libdb-dev \
+    libsqlite3-dev \
+    liblzma-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libcurl4-openssl-dev \
+    libtool \
+    pkg-config \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
@@ -38,6 +55,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN rm -f /etc/apt/sources.list.d/yarn.list \
           /usr/share/keyrings/yarnkey.gpg \
           /etc/apt/sources.list.d/yarn.list.bak
+
+# Install RVM (Ruby Version Manager) for easy switching between Ruby versions.
+# This is a multi-user install under /usr/local/rvm.
+ENV RVM_PATH=/usr/local/rvm \
+    RVM_HOME=/usr/local/rvm \
+    PATH=/usr/local/rvm/bin:$PATH \
+    rvm_silence_path_mismatch_check_flag=1
+
+ARG RVM_VERSION=1.29.12
+
+RUN bash -lc 'set -euxo pipefail; \
+    getent group rvm >/dev/null || groupadd -r rvm; \
+    export GNUPGHOME="$(mktemp -d)"; \
+    curl -fsSL https://rvm.io/mpapis.asc | gpg --batch --import; \
+    curl -fsSL https://rvm.io/pkuczynski.asc | gpg --batch --import; \
+    curl -fsSL -o /tmp/rvm.tar.gz "https://github.com/rvm/rvm/archive/refs/tags/${RVM_VERSION}.tar.gz"; \
+    tar -xzf /tmp/rvm.tar.gz -C /tmp; \
+    cd /tmp/rvm-${RVM_VERSION}; \
+    ./install --path "$RVM_PATH"; \
+    rm -rf "$GNUPGHOME" /tmp/rvm.tar.gz /tmp/rvm-${RVM_VERSION}; \
+    usermod -aG rvm "$USERNAME"; \
+    printf "%s" $'"'"'if [ "${GEM_HOME:-}" = "/usr/local/bundle" ]; then\n  case ":${PATH:-}:" in\n    *:/usr/local/bundle/bin:*) ;;\n    *) export PATH="${PATH:-}:/usr/local/bundle/bin" ;;\n  esac\nfi\n'"'"' > /etc/profile.d/zz-ruby-bundle-path.sh; \
+    printf "%s" $'"'"'\nif [[ -s "/etc/profile.d/rvm.sh" ]]; then\n  source "/etc/profile.d/rvm.sh"\nfi\n\nif [[ "${GEM_HOME:-}" == "/usr/local/bundle" ]]; then\n  case ":${PATH:-}:" in\n    *:/usr/local/bundle/bin:*) ;;\n    *) export PATH="${PATH:-}:/usr/local/bundle/bin" ;;\n  esac\nfi\n'"'"' >> /etc/bash.bashrc'
+
+RUN bash -lc "rvm --version"
 
 # Pre-install Rails and Bundler without extra documentation bloat
 RUN gem install rails bundler --no-document
