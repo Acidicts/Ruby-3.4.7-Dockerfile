@@ -84,6 +84,14 @@ if [ "${GEM_HOME:-}" = "/usr/local/bundle" ]; then
   esac
 fi
 RUBY_BUNDLE_PATH
+cat > /etc/profile.d/rvm.sh <<'RVM_PROFILE'
+# System-wide RVM initialization.
+# Kept POSIX-sh compatible because /etc/profile sources /etc/profile.d/*.sh.
+export rvm_path="/usr/local/rvm"
+if [ -s "${rvm_path}/scripts/rvm" ]; then
+  . "${rvm_path}/scripts/rvm"
+fi
+RVM_PROFILE
 cat >> /etc/bash.bashrc <<'BASHRC_RVM_SNIPPET'
 
 if [[ -s "/etc/profile.d/rvm.sh" ]]; then
